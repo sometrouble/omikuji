@@ -1,3 +1,17 @@
+/**************************************************/
+/*update log								
+
+1.0.0: リリース	
+1.0.1: tweet関数の条件指定バグ修正
+1.0.2: 同上
+1.0.3: アスペの出現タイミングにランダム要素を追加
+1.1.0: 時間帯によってバックグラウンドを変化
+
+*/
+
+
+
+
 enchant();
 
 window.onload = function() {
@@ -11,10 +25,13 @@ window.onload = function() {
 	var SCROLLSPEED = 30;
 	var HORIZON = 330;
 	
-	var VERSION = "1.0.0";
+	var VERSION = "1.1.0";
 	
 	var SCOREPOINT = 0;
 	var TIME = 0;
+
+    var DATE = new Date();
+    var HOUR = DATE.getHours();
 	
 	var testvariable = 0;
 	var game = new Game(WIDTH, HEIGHT);
@@ -30,6 +47,8 @@ window.onload = function() {
 	
 	game.preload('./assets/images/town.png');
 	game.preload('./assets/images/townbg.png');
+	game.preload('./assets/images/town2.png');
+	game.preload('./assets/images/town2bg.png');
 	game.preload('./assets/images/title.png');
 	
 	game.preload('./assets/sounds/rayfami.mp3');
@@ -77,16 +96,18 @@ window.onload = function() {
 				var EUC = encodeURIComponent;
 				var twitter_url = "http://twitter.com/?status=";
 				
-				var Rank = "クリオンのクリ";
+				var Rank = "クリ";
 				var Comment = "今年もよろしくお願いします";
 				
-				if(SCOREPOINT > 5000){Rank = "超特大クリ"; Comment = "今年もジャンジャンイキろう！";}
-				if(SCOREPOINT > 3000){Rank = "大クリ"; Comment = "今年も楽しくイキれそう！";}
+				if(SCOREPOINT < 500){Rank = "凶オン"; Comment = "イキり過ぎには注意！";}
+				if(SCOREPOINT > 1000){Rank = "クリ"; Comment = "今年もよろしくお願いします";}
+				if(SCOREPOINT > 1500){Rank = "末クリ"; Comment = "あけましておめでとうございます";}
 				if(SCOREPOINT > 2500){Rank = "中クリ"; Comment = "ほどよくイキろう！";}
 				if(SCOREPOINT > 2000){Rank = "小クリ"; Comment = "今年もよろしくお願いします";}
-				if(SCOREPOINT > 1500){Rank = "末クリ"; Comment = "あけましておめでとうございます";}
-				if(SCOREPOINT > 1000){Rank = "クリ"; Comment = "今年もよろしくお願いします";}
-				if(SCOREPOINT < 500){Rank = "凶オン"; Comment = "イキり過ぎには注意！";}
+				if(SCOREPOINT > 3000){Rank = "大クリ"; Comment = "今年も楽しくイキれそう！";}			
+				if(SCOREPOINT > 5000){Rank = "超特大クリ"; Comment = "今年もジャンジャンイキろう！";}
+				
+				
 
 				var array=[
 					'モォ～娘',
@@ -220,23 +241,45 @@ window.onload = function() {
 		
 		var createGameScene = function(){
 			
-			var scene = new Scene();			
+			var scene = new Scene();	
+			
+			var rand1 = Math.floor( Math.random() * 11 ) ;
+			var rand2 = Math.floor( Math.random() * 11 ) ;
+			var rand3 = Math.floor( Math.random() * 11 ) ;
 			
 			//---------- background ----------//
 			var bg = new Sprite(WIDTH,HEIGHT-110);
-			bg.image = game.assets['./assets/images/townbg.png'];
+
+            if(HOUR >=12){
+    			bg.image = game.assets['./assets/images/townbg.png'];
+            } else {
+			    bg.image = game.assets['./assets/images/town2bg.png'];
+            }
+
 			bg.x = 0;
 			bg.y = 0;
 			scene.addChild(bg);
 			
 			var bg1 = new Sprite(WIDTH+20,HEIGHT-110);
-			bg1.image = game.assets['./assets/images/town.png'];
+
+            if(HOUR >=12){
+			    bg1.image = game.assets['./assets/images/town.png'];
+            } else {
+			    bg1.image = game.assets['./assets/images/town2.png'];
+            }
+
 			bg1.x = 0;
 			bg1.y = 0;
 			scene.addChild(bg1);
 			
 			var bg2 = new Sprite(WIDTH+20,HEIGHT-110);
-			bg2.image = game.assets['./assets/images/town.png'];
+
+            if(HOUR >=12){
+			    bg2.image = game.assets['./assets/images/town.png'];
+            } else {
+			    bg2.image = game.assets['./assets/images/town2.png'];
+            }
+
 			bg2.x = WIDTH;
 			bg2.y = 0;
 			scene.addChild(bg2);
@@ -336,14 +379,14 @@ window.onload = function() {
 				
 				//---------- game ----------//
 				if(game.frame > 50){
-
-					if (game.frame % 30 == 0) {
+				
+					if (game.frame % (30+rand1) == 0) {
 						iru.x = WIDTH;
 					}
-					if (game.frame % 40 == 0) {
+					if (game.frame % (40+rand2) == 0) {
 						ryusk.x = WIDTH;
 					}
-					if (SCOREPOINT > 2000 && game.frame % 182== 0) {
+					if (SCOREPOINT > 2000 && game.frame % (182+rand3) == 0) {
 						sy4in.x = WIDTH;
 					}
 				}
@@ -369,6 +412,21 @@ window.onload = function() {
 				if(player.within( ryusk, 28) || player.within( iru, 30) || player.within( sy4in, 30)){
 					game.pushScene(createGameoverScene());
 				}
+				
+
+				//---------- randomize ----------//
+
+				if(game.frame % 200 == 0 && iru.x < -iru.width){
+					rand1 = Math.floor( Math.random() * 11 ) ;
+				}
+
+				if(game.frame % 200 == 0 && ryusk.x < -ryusk.width){
+					rand2 = Math.floor( Math.random() * 11 ) ;
+                }
+
+				rand3 = Math.floor( Math.random() * 11 ) ;
+				
+				
 				
 				//testlabel.text = testvariable;
 				
